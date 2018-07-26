@@ -50,7 +50,7 @@ Grep for HTTP GET/POST requests:
 ```
 # ngrep -d eth0 -W byline -q -t '^(GET|POST)' port 80
 ```
-### Tcpflow basics: 
+### Tcpflow basics
 Print ASCII packet data to console:
 ```
 # tcpflow -c -s -r $CAPFILE
@@ -59,4 +59,14 @@ Extract all flows, objects, & files to output folder:
 ```
 # mkdir tcpflow
 # tcpflow -a -r $CAPFILE -o tcpflow/
+```
+### Passive OS/app profiling
+Show host OS/apps via p0f:
+```
+# p0f -r $CAPFILE
+```
+Show host OS/apps via PADS:
+```
+# pads -r $CAPFILE
+# cat assets.csv
 ```
