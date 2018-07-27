@@ -228,6 +228,15 @@ Classified/tagged documents:
 ```
 # tcpflow -c -s -r $CAPFILE | grep -v Cookie |egrep --color -i ' CONFIDENTIAL | PROTECTED | INTERNAL USE ONLY | TOP SECRET '
 ```
+### Parsing SQL traffic
+MySQL password hashes, queries, & responses:
+```
+# tshark -nn -r $CAPFILE -V -Y tcp.port==3306 | egrep 'Username:|Password:|Statement:|text:'
+```
+MSSQL queries & responses:
+```
+# tshark -nn -r $CAPFILE -V -Y tcp.port==1433 | egrep "Query:|Data:|Data \[truncated\]:"
+```
 ### Hardware/mobile device profiling
 Device manufacturers/models:
 ```
