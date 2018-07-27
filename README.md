@@ -281,7 +281,7 @@ Sessions using weak SSL protocol versions:
 ```
 # ssldump -n -r $CAPFILE | grep Version |sort -u
 ```
-Decrypting SSL traffic using a known private key (server-key.pem):
+Decrypting SSL traffic using a known private key:
 ```
-# tshark -nn -t ad -r $CAPFILE -o "ssl.keys_list:,443,http,server-key.pem" -V -R http
+# tshark -r SSL-decryption.pcap -q -o "ssl.keys_list:192.168.56.101,443,http,server.pem" -z "follow,ssl,ascii,2"
 ```
