@@ -3,6 +3,8 @@
 Packet captures & commands for DEFCON 2018 Packet Hunting Workshop:
 https://defcon.org/html/defcon-26/dc-26-workshops.html#porcello
 
+Some packet capture traffic courtesy of chrissanders.org & wireshark.org
+
 ### Getting started
 Install mining tools:
 ```
@@ -226,7 +228,20 @@ DOB/License/Passport numbers:
 ```
 Classified/tagged documents:
 ```
-# tcpflow -c -s -r $CAPFILE | grep -v Cookie |egrep --color -i ' CONFIDENTIAL | PROTECTED | INTERNAL USE ONLY | TOP SECRET '
+# tcpflow -c -s -r $CAPFILE | grep -v Cookie |egrep --color -i 'CONFIDENTIAL|PROTECTED|INTERNAL USE ONLY|TOP SECRET'
+```
+### Parsing SMB/CIFS traffic
+SMB users, domains, & password hashes:
+```
+# tshark -nn -r $CAPFILE -V -Y tcp.port==445 |egrep "Lan Manager Response|NTLM Response|NTLMv2 Response|Domain name|User name|Host name"
+```
+SMB share & file access timeline:
+```
+# tshark -nn -r $CAPFILE -V -Y tcp.port==445 |egrep "Arrival Time: |Tree Id: |\[Account: |\[Domain: |\[Host: |NT Status: |Command: |GUID handle File: "
+```
+Carving files out of SMB traffic:
+```
+# tshark -nn -r $CAPFILE -q --export-objects smb,tmpfolder
 ```
 ### Parsing SQL traffic
 MySQL password hashes, queries, & responses:
