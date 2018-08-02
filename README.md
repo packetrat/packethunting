@@ -14,7 +14,7 @@ https://wiki.wireshark.org/SampleCaptures
 ### Getting started
 Install mining tools:
 ```
-# apt install ngrep tcpflow ssldump dsniff tshark p0f pads html2markdown
+# apt update && apt install ngrep tcpflow xplico ssldump dsniff tshark p0f pads html2markdown
 ```
 Set a variable for your capture file name:
 ```
@@ -205,6 +205,12 @@ Extract emails to console:
 Extract emails to disk:
 ```
 # tcpflow -a -r $CAPFILE port 25 or port 110  -o tcpflow/
+```
+Extracting email attachments:
+```
+# tcpflow -C -0 -r $CAPFILE port 25 or port 110
+# cat base64.txt | base64 -d > file.xxx
+# file file.xxx   ### Verify file is correct type
 ```
 ### Password hunting
 FTP, Telnet, SMTP, POP3, HTTP, etc:
