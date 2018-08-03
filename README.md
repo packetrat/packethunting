@@ -14,7 +14,7 @@ https://wiki.wireshark.org/SampleCaptures
 ### Getting started
 Install mining tools:
 ```
-# apt update && apt install ngrep tcpflow xplico ssldump dsniff tshark p0f pads html2markdown
+# apt update && apt install ngrep tcpflow xplico ssldump dsniff tshark p0f pads python-html2text
 ```
 Set a variable for your capture file name:
 ```
@@ -240,7 +240,7 @@ DOB/License/Passport numbers:
 ```
 Classified/tagged documents:
 ```
-# tcpflow -c -s -r $CAPFILE | grep -v Cookie |egrep --color -i 'CONFIDENTIAL|PROTECTED|INTERNAL USE ONLY|TOP SECRET'
+# tcpflow -c -s -r $CAPFILE | grep -v Cookie |egrep --color -i 'CONFIDENTIAL|PROTECTED|INTERNAL USE ONLY|TOP SECRET|CLASSIFIED'
 ```
 ### Parsing SMB/CIFS traffic
 SMB users, domains, & password hashes:
@@ -267,7 +267,7 @@ MSSQL queries & responses:
 ### Hardware/mobile device profiling
 Device manufacturers/models:
 ```
-# ngrep -I "$CAPFILE" -W byline -q -t port 80 | egrep --color "device_name=|device_type=|os_version=|dev=|X-Device-Info:|Device:|DEVICE:|deviceId=|deviceModel=" |sort |uniq
+# ngrep -I "$CAPFILE" -W byline -q -t port 80 | egrep --color "device_name=|device_type=|os_version=|dev=|X-Device-Info:|Device:|DEVICE:|deviceId=|deviceModel="
 ```
 Cell carrier parameters:
 ```
@@ -285,7 +285,7 @@ Windows error reporting: Hardware vendor, model, BIOS/firmware versions, running
 ### Location tracking data
 Via Apple default weather app, Wunderground, etc:
 ```
-# ngrep -I "$CAPFILE" -W byline -q -t '^(GET|POST|HTTP/)' port 80 |egrep "%2Clatitude%2|maxlat=|latitude="
+# ngrep -I "$CAPFILE" -W byline -q -t '^(GET|POST|HTTP/)' port 80 |egrep "%2Clatitude%2|maxlat=|latitude=|latlon"
 ```
 Via Windows default weather app:
 ```
