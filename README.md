@@ -3,9 +3,6 @@
 Packet captures & commands for DEFCON 2018 Packet Mining Workshop:<br/>
 https://defcon.org/html/defcon-26/dc-26-workshops.html#porcello
 
-<b>Abstract:</b><br/>
-Join the packet hunters behind NPR's Project Eavesdrop for an interactive, hands-on workshop where we'll hunt for juicy bits of personal & corporate data on the wire. Using Wireshark, ngrep, tcpflow, xplico and other Linux packet digging tools, you'll learn how to extract PII from a packet capture or live stream, including passwords, emails, photos/images, cookies, session IDs, credit card numbers, SSNs, GPS coordinates, mobile device details, cell carrier info, vulnerable client software, weak SSL sessions, and much more. Useful for detecting privacy/data leakage, passive pentesting, & network forensics, these techniques expose what an intermediary can discern about an individual or organization through passive monitoring of network traffic.
-
 Some packet capture traffic courtesy of chrissanders.org & wireshark.org:<br/>
 https://github.com/chrissanders/packets<br/>
 https://wiki.wireshark.org/SampleCaptures
