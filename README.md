@@ -1,4 +1,4 @@
-# Packet Mining for Sensitive Data & Privacy Leakage
+# Packet Mining for Privacy Leakage
 
 Packet captures & commands for DEFCON 2018 Packet Mining Workshop:<br/>
 https://defcon.org/html/defcon-26/dc-26-workshops.html#porcello
