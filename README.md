@@ -1,13 +1,13 @@
-# Packet Mining for Privacy Leakage
+# Packet Mining for Sensitive Data & Privacy Leakage
 
-Packet captures & commands for DEFCON 2018 Packet Hunting Workshop:
-
+Packet captures & commands for DEFCON 2018 Packet Mining Workshop:<br/>
 https://defcon.org/html/defcon-26/dc-26-workshops.html#porcello
 
-Some packet capture traffic courtesy of chrissanders.org & wireshark.org:
+<b>Abstract:</b><br/>
+Join the packet hunters behind NPR's Project Eavesdrop for an interactive, hands-on workshop where we'll hunt for juicy bits of personal & corporate data on the wire. Using Wireshark, ngrep, tcpflow, xplico and other Linux packet digging tools, you'll learn how to extract PII from a packet capture or live stream, including passwords, emails, photos/images, cookies, session IDs, credit card numbers, SSNs, GPS coordinates, mobile device details, cell carrier info, vulnerable client software, weak SSL sessions, and much more. Useful for detecting privacy/data leakage, passive pentesting, & network forensics, these techniques expose what an intermediary can discern about an individual or organization through passive monitoring of network traffic.
 
-https://github.com/chrissanders/packets
-
+Some packet capture traffic courtesy of chrissanders.org & wireshark.org:<br/>
+https://github.com/chrissanders/packets<br/>
 https://wiki.wireshark.org/SampleCaptures
 
 
@@ -159,6 +159,10 @@ Breakdown by file type:
 ```
 # find tcpflow/ |egrep -o "\.[a-zA-Z]*$" |sort |uniq -ic |sort -nr
 ```
+Extracting & decoding with xplico:
+```
+# xplico -m pcap -f $CAPFILE
+```
 ### Content profiling
 Search engine queries:
 ```
@@ -265,22 +269,26 @@ MSSQL queries & responses:
 # tshark -nn -r $CAPFILE -V -Y tcp.port==1433 | egrep "Query:|Data:|Data \[truncated\]:"
 ```
 ### Hardware/mobile device profiling
-Device manufacturers/models:
+Device info via HTTP:
 ```
 # ngrep -I "$CAPFILE" -W byline -q -t port 80 | egrep --color "device_name=|device_type=|os_version=|dev=|X-Device-Info:|Device:|DEVICE:|deviceId=|deviceModel="
 ```
-Cell carrier parameters:
+Device info via mDNS:
 ```
-# ngrep -I "$CAPFILE" -W byline -q -t port 80 | egrep --color "mcc=|mnc=|csc="
-```
-Decoding Apple iDevice plist files:
-```
-# apt install libplist-utils
-# plistutil -i <plistfile>
+# tcpdump -nn -A -r $CAPFILE port 5353
 ```
 Windows error reporting: Hardware vendor, model, BIOS/firmware versions, running processes, exe/dll versions, & connected USB devices:
 ```
 # ngrep -I "$CAPFILE" -W byline -q -t '^(GET|POST)' port 80 |egrep "^T |^GET|^Host:" |egrep -B2 "watson.microsoft.com.$"
+```
+Cell carrier codes:
+```
+# ngrep -I "$CAPFILE" -W byline -q -t port 80 | egrep --color "mcc=|mnc=|csc=|mccmnc"
+```
+Extract Apple plist XML files, then decode with plistutil:
+```
+# apt install libplist-utils
+# plistutil -i <plistfile>
 ```
 ### Location tracking data
 Via Apple default weather app, Wunderground, etc:
@@ -291,14 +299,22 @@ Via Windows default weather app:
 ```
 # ngrep -I "$CAPFILE" -W byline -q -t 'weather.microsoft.com' port 80 |egrep --color "DisplayName="
 ```
-### Amazon mobile app traffic
+### Mobile apps
+iTunes audio downloads:
+```
+# ngrep -I $CAPFILE -W byline -q -t port 80 | egrep -B6 "User-Agent: AppleCoreMedia"
+```
+Apple app store traffic:
+```
+# ngrep -I $CAPFILE -W byline -q -t port 80 | egrep -B1 "bundleId=|dpkg.ipa|^[Xx]-[Aa]pple"
+```
 Kindle app traffic ("key=" indicates ASIN of each ebook)
 ```
-# ngrep -q -t -I kindle.pcap -W byline | grep --color 'type="EBOK" key='
+# ngrep -q -t -I $CAPFILE -W byline | grep --color 'type="EBOK" key='
 ```
-Prime video app traffic:
+Prime video streaming file downloads:
 ```
-# ngrep -q -t -I kindle.pcap -W byline | grep  'Prime%20Video%22%2C%22vn'
+# ngrep -q -t -I $CAPFILE -W byline | grep -B6 'Prime%20Video'
 ```
 ### Inspecting SSL traffic
 Extract SSL certificates with tcpflow:
