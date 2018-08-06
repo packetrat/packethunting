@@ -65,16 +65,6 @@ Extract all flows, objects, & files to output folder:
 # mkdir tcpflow
 # tcpflow -a -r $CAPFILE -o tcpflow/
 ```
-### Passive OS/app profiling
-Show host OS/apps via p0f:
-```
-# p0f -r $CAPFILE
-```
-Show host OS/apps via PADS:
-```
-# pads -r $CAPFILE
-# cat assets.csv
-```
 ### Connection stats
 Top 10 source IPs:
 ```
@@ -92,9 +82,9 @@ Top IP protocols:
 ```
 # tcpdump -nn -v -r $CAPFILE |grep " IP " |awk -F, '{print$6}' |sort |uniq -c |sort -nr
 ```
-Top 10 destination ports:
+Top 10 destination ports (based on SYN packets):
 ```
-# tcpdump -nn -r $CAPFILE |grep " IP " | awk '{print$5}' |cut -d. -f 5- |sort |uniq -c |sort -nr |head
+# tcpdump -nn -r $CAPFILE |grep " IP " |grep "Flags \[S\]" |awk '{print$5}' |cut -d. -f 5- |sort |uniq -c |sort -nr |head
 ```
 ### DNS digging
 Top domains:
@@ -112,7 +102,16 @@ Grep for private IPs in packet data:
 ```
 Grep for MACs in packet data:
 ```
-# ngrep -q -t -W byline -I $CAPFILE '([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])'
+# ngrep -q -t -W byline -I $CAPFILE '([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])' not port 5353
+```
+### Passive OS/app profiling
+OS/app summary via p0f:
+```
+# p0f -r $CAPFILE |egrep "^\| (os|app)" |sort |uniq
+```
+OS/app list via PADS:
+```
+# pads -v -r $CAPFILE -w assets.csv port 80
 ```
 ### Profiling HTTP traffic
 Top 10 websites:
@@ -171,7 +170,7 @@ URL "keyword" strings:
 ```
 Top words from HTML content:
 ```
-# cat tcpflow/*.html |html2markdown | egrep -o '\w{4,}' |sort |uniq -c |sort -nr |head -n25
+# cat tcpflow/*.html |html2text | egrep -o '\w{4,}' |sort |uniq -c |sort -nr |head -n25
 ```
 ### Personal contact info
 Email addresses with common TLDs:
@@ -216,7 +215,7 @@ Extracting email attachments:
 ### Password hunting
 FTP, Telnet, SMTP, POP3, HTTP, etc:
 ```
-# ngrep -I $CAPFILE -W byline -q -t | egrep --color "[Pp]assword[=:]|[Pp]ass=|[Ss]ecret=|pwd=|^PASS|^USER |^AUTH |login:|^Authorization:"
+# ngrep -I $CAPFILE -W byline -q -t | egrep --color "[Pp]assword[=:]|&[Pp]ass=|[Ss]ecret=|pwd=|^PASS|^USER |^AUTH |login:|^Authorization:"
 ```
 Decoding HTTP Basic auth, SMTP, POP3 (base64): 
 ```
@@ -233,7 +232,7 @@ Credit card numbers:
 ```
 Social security numbers:
 ```
-# tcpflow -c -s -r $CAPFILE | grep -P --color '([0-6]\d\d|7[0-256]\d|73[0-3]|77[0-2])[- ]\d{2}[- ]\d{4}'
+tcpflow -c -s -r $CAPFILE | grep -P --color '[ ^]([0-6]\d\d|7[0-256]\d|73[0-3]|77[0-2])[- ]\d{2}[- ]\d{4}'
 ```
 DOB/License/Passport numbers:
 ```
@@ -272,7 +271,7 @@ Device info via HTTP:
 ```
 Device info via mDNS:
 ```
-# tcpdump -nn -A -r $CAPFILE port 5353
+# tcpdump -nn -A -r $CAPFILE port 5353 |egrep --color "product=|model="
 ```
 Windows error reporting: Hardware vendor, model, BIOS/firmware versions, running processes, exe/dll versions, & connected USB devices:
 ```
@@ -282,8 +281,9 @@ Cell carrier codes:
 ```
 # ngrep -I "$CAPFILE" -W byline -q -t port 80 | egrep --color "mcc=|mnc=|csc=|mccmnc"
 ```
-Extract Apple plist XML files, then decode with plistutil:
+Apple plist files: extract with tcpflow, decode with plistutil:
 ```
+# grep "plist version" tcpflow/*
 # apt install libplist-utils
 # plistutil -i <plistfile>
 ```
@@ -297,13 +297,21 @@ Via Windows default weather app:
 # ngrep -I "$CAPFILE" -W byline -q -t 'weather.microsoft.com' port 80 |egrep --color "DisplayName="
 ```
 ### Mobile apps
+Android apps, versions, usage, etc:
+```
+# ngrep -I $CAPFILE -W byline -q -t '^(GET )' port 80 | egrep "^GET |^Host:" |grep --color -A1 "ap_an="
+```
+Android app traffic (via Dalvik agent):
+```
+# ngrep -I $CAPFILE -W byline -q -t 'User-Agent: Dalvik' port 80
+```
+Apple apps/store traffic:
+```
+# ngrep -I $CAPFILE -W byline -q -t port 80 | egrep -B1 "bundleId=|dpkg.ipa|^[Xx]-[Aa]pple"
+```
 iTunes audio downloads:
 ```
 # ngrep -I $CAPFILE -W byline -q -t port 80 | egrep -B6 "User-Agent: AppleCoreMedia"
-```
-Apple app store traffic:
-```
-# ngrep -I $CAPFILE -W byline -q -t port 80 | egrep -B1 "bundleId=|dpkg.ipa|^[Xx]-[Aa]pple"
 ```
 Kindle app traffic ("key=" indicates ASIN of each ebook)
 ```
