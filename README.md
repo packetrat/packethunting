@@ -271,7 +271,7 @@ Device info via HTTP:
 ```
 Device info via mDNS:
 ```
-# tcpdump -nn -A -r $CAPFILE port 5353 |egrep --color "product=|model="
+# tshark -nn -r $CAPFILE -V -Y udp.port==5353 |egrep "Name: |product=|model=" |sort |uniq |egrep -v "Domain Name:|Name: _"
 ```
 Windows error reporting: Hardware vendor, model, BIOS/firmware versions, running processes, exe/dll versions, & connected USB devices:
 ```
